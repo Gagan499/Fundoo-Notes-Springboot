@@ -2,6 +2,7 @@ package com.fundoo.notes.entity;
 
 import java.time.LocalDateTime;
 
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -16,15 +17,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import lombok.Setter;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Entity 
 @Table (name = "notes")
 @Getter
-@Setter 
+@Setter
+@Builder
 @NoArgsConstructor 
 @AllArgsConstructor 
 public class Note {
