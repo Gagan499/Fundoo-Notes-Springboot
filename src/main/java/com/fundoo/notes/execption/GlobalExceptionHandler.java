@@ -54,4 +54,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED)
                 .body(ApiResponse.error(exception.getMessage()));
     }
+
+    @ExceptionHandler(EmptyNoteException.class)
+    public ResponseEntity<ApiResponse<Void>> handleEmptyNoteException(Exception exception){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(exception.getMessage()));
+    }
 }
