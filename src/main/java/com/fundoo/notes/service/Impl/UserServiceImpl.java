@@ -1,30 +1,33 @@
 package com.fundoo.notes.service.Impl;
 
-import com.fundoo.notes.dto.LoginDTO;
-import com.fundoo.notes.dto.LoginResponseDTO;
-import com.fundoo.notes.dto.RegistrationDTO;
-import com.fundoo.notes.dto.UserResponseDTO;
+import com.fundoo.notes.dto.*;
 import com.fundoo.notes.entity.User;
 import com.fundoo.notes.execption.InvalidCredentialsException;
 import com.fundoo.notes.execption.UserAlreadyExistsException;
 import com.fundoo.notes.repository.UserRepository;
+import com.fundoo.notes.service.EmailService;
 import com.fundoo.notes.service.UserService;
 import com.fundoo.notes.util.JwtUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final EmailService emailService;
+    @Value("${app.frontend.reset-password-url:http://localhost:8080/reset-password}")
+    private String resetPasswordUrl;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils){
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils,EmailService emailService){
         this.userRepository = userRepository;
         this.passwordEncoder =passwordEncoder;
         this.jwtUtils = jwtUtils;
+        this.emailService=emailService;
     }
 
     @Override
@@ -47,6 +50,25 @@ public class UserServiceImpl implements UserService {
         }
         String token = jwtUtils.generateToken(dto.getEmail());
         return MapUserDataLoginResponseDTO(user,token);
+    }
+
+    @Override
+    public void processForgotPassword(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(()->new UsernameNotFoundException("user not found with email"));
+        String resetToken = jwtUtils.generateresettoken(email,user.getUserId());
+        String resetLink = resetPasswordUrl + "?token=" + resetToken;
+        emailService.sendPasswordResetEmail(user.getEmail(),resetLink);
+    }
+
+    @Override
+    public void resetPassword(String token, ResetPasswordDTO resetPasswordDTO) {
+        Long userId = jwtUtils.extractUserIdFromToken(token);
+        if(userId==null){
+            throw new UsernameNotFoundException("Invalid token: user Id not found");
+        }
+        User user = userRepository.findById(userId).orElseThrow(()->new UsernameNotFoundException("user not found with id : "+userId));
+        user.setPassword(passwordEncoder.encode(resetPasswordDTO.getNewPassword()));
+        userRepository.save(user);
     }
 
     // Mapping Register Data To User

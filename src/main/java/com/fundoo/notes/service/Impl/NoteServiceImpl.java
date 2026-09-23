@@ -10,9 +10,9 @@ import com.fundoo.notes.repository.UserRepository;
 import com.fundoo.notes.service.NoteService;
 import io.micrometer.common.util.StringUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class NoteServiceImpl implements NoteService {
     private final NoteRepository noteRepository;
     private final UserRepository userRepository;

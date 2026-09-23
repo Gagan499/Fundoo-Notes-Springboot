@@ -18,6 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -58,7 +60,7 @@ class UserControllerTest {
 
     @Test
     void registration_ShouldReturn201_whenRegistrationSuccess() throws Exception {
-
+        ArrayList a = new ArrayList();
         UserResponseDTO response = new UserResponseDTO();
 
         when(userService.registerUser(any(RegistrationDTO.class)))

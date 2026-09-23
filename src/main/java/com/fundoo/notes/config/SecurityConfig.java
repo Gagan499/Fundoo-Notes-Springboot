@@ -21,7 +21,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws SecurityException{
         http.csrf(crsf -> crsf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/users","/api/users/login","/api/users/register")
+                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/users","/api/users/login","/api/users/register", "/api/users/forgot-password","/api/users/reset-password","/reset-password")
                         .permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
