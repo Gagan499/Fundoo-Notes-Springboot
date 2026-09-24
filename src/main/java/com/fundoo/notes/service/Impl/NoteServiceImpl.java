@@ -12,6 +12,9 @@ import io.micrometer.common.util.StringUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class NoteServiceImpl implements NoteService {
     private final NoteRepository noteRepository;
@@ -37,6 +40,11 @@ public class NoteServiceImpl implements NoteService {
         return mapNoteToResponse(savedNote);
     }
 
+    @Override
+    public List<NoteResponseDTO> getAllNotesByuserId(Long userId) {
+        List<Note> list = noteRepository.findByUserUserId(userId);
+        return  list.stream().map(e->mapNoteToResponse(e)).collect(Collectors.toList());
+    }
 
     // Map Note to Entity
     private Note mapToNoteEntity(NoteRequestDTO requestDTO,User user) {
