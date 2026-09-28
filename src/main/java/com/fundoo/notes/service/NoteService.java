@@ -16,4 +16,8 @@ public interface NoteService {
     NoteResponseDTO getNoteById(Long noteId,Long userId);
 
     NoteResponseDTO editNote(NoteRequestDTO noteRequestDTO, Long noteId,Long userId);
+
+    boolean isSoftDelete(Long noteId, Long userId);
+
+    void isDeleteNoteById(Long noteId, Long userId);
 }

@@ -4,6 +4,7 @@ import com.fundoo.notes.dto.NoteRequestDTO;
 import com.fundoo.notes.dto.NoteResponseDTO;
 import com.fundoo.notes.entity.Note;
 import com.fundoo.notes.entity.User;
+import com.fundoo.notes.execption.AlreadyNoteIsTrashed;
 import com.fundoo.notes.execption.EmptyNoteException;
 import com.fundoo.notes.execption.NoteNotFoundByIdException;
 import com.fundoo.notes.execption.TitleNotEmptyOrNull;
@@ -52,12 +53,15 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public List<NoteResponseDTO> getAllNotesByuserId(Long userId) {
         List<Note> list = noteRepository.findByUserUserId(userId);
-        return  list.stream().map(e->mapNoteToResponse(e)).collect(Collectors.toList());
+        return  list.stream().filter(note -> note.isTrashed() != true ).map(e->mapNoteToResponse(e)).collect(Collectors.toList());
     }
 
     @Override
     public NoteResponseDTO getNoteById(Long noteId, Long userId) {
         Note note = noteRepository.findByNoteIdAndUserUserId(noteId,userId).orElseThrow(()-> new NoteNotFoundByIdException("can't find note using this note id"));
+        if(note.isTrashed()){
+            throw new AlreadyNoteIsTrashed("Note is not available\nReason :- note is not present of these noteID ");
+        }
         return mapNoteToResponse(note);
     }
 
@@ -71,17 +75,33 @@ public class NoteServiceImpl implements NoteService {
             }
             note.setTitle(dto.getTitle());
         }
-
         if (dto.getContent() != null) {
             note.setContent(dto.getContent());     // fixed
         }
-
         if (dto.getColor() != null) {
             note.setColour(dto.getColor());        // fixed (your entity field is "colour")
         }
-
         return mapNoteToResponse(noteRepository.save(note));
     }
+
+    // soft delete the note
+    public boolean isSoftDelete(Long noteId, Long userId){
+        Note note = noteRepository.findByNoteIdAndUserUserId(noteId,userId)
+                    .orElseThrow(()-> new NoteNotFoundByIdException("Cannot found the note using this noteId and userId"));
+        note.setTrashed(!note.isTrashed());
+        noteRepository.save(note);
+        return note.isTrashed();
+    }
+
+    // delete note by note id
+    @Override
+    public void isDeleteNoteById(Long noteId, Long userId) {
+        Note note = noteRepository.findByNoteIdAndUserUserId(noteId,userId)
+                .orElseThrow(()-> new NoteNotFoundByIdException("Cannot found the note using this noteId and userId"));
+        noteRepository.delete(note);
+
+    }
+
     // Map Note to Entity
     private Note mapToNoteEntity(NoteRequestDTO requestDTO,User user) {
 

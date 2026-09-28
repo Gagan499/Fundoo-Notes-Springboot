@@ -75,4 +75,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(exception.getMessage()));
     }
+
+    @ExceptionHandler(AlreadyNoteIsTrashed.class)
+    public ResponseEntity<ApiResponse<Void>> handleAlreadyTrash(Exception exception){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(exception.getMessage()));
+    }
 }

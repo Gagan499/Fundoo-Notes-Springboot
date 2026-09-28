@@ -58,4 +58,26 @@ public class NoteController {
                 .body(response);
 
     }
+
+    @PatchMapping("/trashing/{noteId}")
+    public ResponseEntity<ApiResponse<Void>> softeDeleteNoteByNoteId(@AuthenticationPrincipal UserPrinciple userPrinciple,@PathVariable Long noteId){
+        Long userId = userPrinciple.getUser().getUserId();
+        boolean found = noteService.isSoftDelete(noteId,userId);
+        String message = found?"Note trashed successfully":"Note restored successfully";
+        ApiResponse<Void> response = ApiResponse.success(message,null);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+    @DeleteMapping("/{noteId}")
+    public ResponseEntity<ApiResponse<Void>> deleteByNoteId (@AuthenticationPrincipal UserPrinciple userPrinciple, @PathVariable Long noteId){
+        Long userId = userPrinciple.getUser().getUserId();
+        noteService.isDeleteNoteById(noteId,userId);
+        ApiResponse<Void> response = ApiResponse.success("Note deleted successfully",null);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+
+    }
 }
