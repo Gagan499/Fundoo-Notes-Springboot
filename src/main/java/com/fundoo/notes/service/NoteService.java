@@ -14,4 +14,6 @@ public interface NoteService {
 
     // get note by note id and user id
     NoteResponseDTO getNoteById(Long noteId,Long userId);
+
+    NoteResponseDTO editNote(NoteRequestDTO noteRequestDTO, Long noteId,Long userId);
 }

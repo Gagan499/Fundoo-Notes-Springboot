@@ -68,4 +68,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(exception.getMessage()));
     }
+
+    @ExceptionHandler(TitleNotEmptyOrNull.class)
+    public ResponseEntity<ApiResponse<Void>> handleTitleNotEmptyOrNull(Exception exception){
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(exception.getMessage()));
+    }
 }

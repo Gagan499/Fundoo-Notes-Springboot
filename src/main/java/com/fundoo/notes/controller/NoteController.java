@@ -47,4 +47,15 @@ public class NoteController {
                 .status(HttpStatus.OK)
                 .body(response);
     }
+
+    @PatchMapping("/{noteId}")
+    public ResponseEntity<ApiResponse<NoteResponseDTO>> updateNotebyId(@RequestBody NoteRequestDTO noteRequestDTO,@AuthenticationPrincipal UserPrinciple userPrinciple,@PathVariable Long noteId){
+        Long userId = userPrinciple.getUser().getUserId();
+        NoteResponseDTO result = noteService.editNote(noteRequestDTO,noteId,userId);
+        ApiResponse<NoteResponseDTO> response = ApiResponse.success("note edit successfully",result);
+        return  ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+
+    }
 }

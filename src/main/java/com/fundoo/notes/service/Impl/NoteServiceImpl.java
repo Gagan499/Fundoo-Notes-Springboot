@@ -6,6 +6,7 @@ import com.fundoo.notes.entity.Note;
 import com.fundoo.notes.entity.User;
 import com.fundoo.notes.execption.EmptyNoteException;
 import com.fundoo.notes.execption.NoteNotFoundByIdException;
+import com.fundoo.notes.execption.TitleNotEmptyOrNull;
 import com.fundoo.notes.repository.NoteRepository;
 import com.fundoo.notes.repository.UserRepository;
 import com.fundoo.notes.service.NoteService;
@@ -60,6 +61,27 @@ public class NoteServiceImpl implements NoteService {
         return mapNoteToResponse(note);
     }
 
+    public NoteResponseDTO editNote(NoteRequestDTO dto, Long noteId, Long userId) {
+        Note note = noteRepository.findByNoteIdAndUserUserId(noteId, userId)
+                .orElseThrow(() -> new NoteNotFoundByIdException("cannot found note using this note id"));
+
+        if (dto.getTitle() != null) {
+            if (StringUtils.isBlank(dto.getTitle())) {
+                throw new TitleNotEmptyOrNull("Title not be Blank or Empty, Title must be provided");
+            }
+            note.setTitle(dto.getTitle());
+        }
+
+        if (dto.getContent() != null) {
+            note.setContent(dto.getContent());     // fixed
+        }
+
+        if (dto.getColor() != null) {
+            note.setColour(dto.getColor());        // fixed (your entity field is "colour")
+        }
+
+        return mapNoteToResponse(noteRepository.save(note));
+    }
     // Map Note to Entity
     private Note mapToNoteEntity(NoteRequestDTO requestDTO,User user) {
 
