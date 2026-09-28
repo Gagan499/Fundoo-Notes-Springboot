@@ -4,7 +4,6 @@ import com.fundoo.notes.config.UserPrinciple;
 import com.fundoo.notes.dto.ApiResponse;
 import com.fundoo.notes.dto.NoteRequestDTO;
 import com.fundoo.notes.dto.NoteResponseDTO;
-import com.fundoo.notes.repository.NoteRepository;
 import com.fundoo.notes.service.Impl.NoteServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,5 +36,15 @@ public class NoteController {
         List<NoteResponseDTO> notes = noteService.getAllNotesByuserId(userId);
         String message = notes.isEmpty() ? "No notes found" : "Notes retrieved successfully";
         return ResponseEntity.ok(ApiResponse.success(message, notes));
+    }
+
+    @GetMapping("/{noteId}")
+    public ResponseEntity<ApiResponse<NoteResponseDTO>> getNoteById(@AuthenticationPrincipal UserPrinciple userPrinciple,@PathVariable Long noteId){
+        Long userId = userPrinciple.getUser().getUserId();
+        NoteResponseDTO result = noteService.getNoteById(noteId,userId);
+        ApiResponse<NoteResponseDTO> response = ApiResponse.success("notes retrieved successfully",result);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
     }
 }

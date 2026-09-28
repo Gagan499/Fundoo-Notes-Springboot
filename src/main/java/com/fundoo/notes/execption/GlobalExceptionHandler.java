@@ -61,4 +61,11 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(exception.getMessage()));
     }
+
+    @ExceptionHandler(NoteNotFoundByIdException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNoteNotFoundById(Exception exception){
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(exception.getMessage()));
+    }
 }

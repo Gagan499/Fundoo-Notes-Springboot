@@ -5,6 +5,7 @@ import com.fundoo.notes.dto.NoteResponseDTO;
 import com.fundoo.notes.entity.Note;
 import com.fundoo.notes.entity.User;
 import com.fundoo.notes.execption.EmptyNoteException;
+import com.fundoo.notes.execption.NoteNotFoundByIdException;
 import com.fundoo.notes.repository.NoteRepository;
 import com.fundoo.notes.repository.UserRepository;
 import com.fundoo.notes.service.NoteService;
@@ -12,6 +13,7 @@ import io.micrometer.common.util.StringUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,9 +32,15 @@ public class NoteServiceImpl implements NoteService {
         if(StringUtils.isBlank(noteRequestDTO.getContent()) && StringUtils.isBlank(noteRequestDTO.getTitle())){
             throw  new EmptyNoteException("Title and Content cannot both be blank | Empty");
         }
-        if(StringUtils.isBlank(noteRequestDTO.getTitle()) && StringUtils.isNotBlank(noteRequestDTO.getContent())){
-            noteRequestDTO.setTitle(noteRequestDTO.getContent().split("\\R", 2)[0]
-                    .trim());
+        if (StringUtils.isBlank(noteRequestDTO.getTitle())
+                && StringUtils.isNotBlank(noteRequestDTO.getContent())) {
+
+            String[] words = noteRequestDTO.getContent().trim().split("\\s+");
+
+            String title = String.join(" ",
+                    Arrays.copyOf(words, Math.min(4, words.length)));
+
+            noteRequestDTO.setTitle(title);
         }
         User user = userRepository.findById(userId).orElseThrow(()-> new UsernameNotFoundException("User not Found"));
         Note note = mapToNoteEntity(noteRequestDTO,user);
@@ -44,6 +52,12 @@ public class NoteServiceImpl implements NoteService {
     public List<NoteResponseDTO> getAllNotesByuserId(Long userId) {
         List<Note> list = noteRepository.findByUserUserId(userId);
         return  list.stream().map(e->mapNoteToResponse(e)).collect(Collectors.toList());
+    }
+
+    @Override
+    public NoteResponseDTO getNoteById(Long noteId, Long userId) {
+        Note note = noteRepository.findByNoteIdAndUserUserId(noteId,userId).orElseThrow(()-> new NoteNotFoundByIdException("can't find note using this note id"));
+        return mapNoteToResponse(note);
     }
 
     // Map Note to Entity
