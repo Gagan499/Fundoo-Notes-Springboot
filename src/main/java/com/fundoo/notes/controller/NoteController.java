@@ -5,6 +5,7 @@ import com.fundoo.notes.dto.ApiResponse;
 import com.fundoo.notes.dto.NoteRequestDTO;
 import com.fundoo.notes.dto.NoteResponseDTO;
 import com.fundoo.notes.service.Impl.NoteServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/notes")
 public class NoteController {
@@ -27,6 +29,7 @@ public class NoteController {
         Long userId = principle.getUser().getUserId();
         NoteResponseDTO result = noteService.createnote(noteRequestDTO,userId);
         ApiResponse<NoteResponseDTO> response = ApiResponse.success("Note created successfully",result);
+        log.info("Note created successfully");
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -35,6 +38,7 @@ public class NoteController {
         Long userId = principle.getUser().getUserId();
         List<NoteResponseDTO> notes = noteService.getAllNotesByuserId(userId);
         String message = notes.isEmpty() ? "No notes found" : "Notes retrieved successfully";
+        log.info(message);
         return ResponseEntity.ok(ApiResponse.success(message, notes));
     }
 
@@ -42,7 +46,8 @@ public class NoteController {
     public ResponseEntity<ApiResponse<NoteResponseDTO>> getNoteById(@AuthenticationPrincipal UserPrinciple userPrinciple,@PathVariable Long noteId){
         Long userId = userPrinciple.getUser().getUserId();
         NoteResponseDTO result = noteService.getNoteById(noteId,userId);
-        ApiResponse<NoteResponseDTO> response = ApiResponse.success("notes retrieved successfully",result);
+        ApiResponse<NoteResponseDTO> response = ApiResponse.success("Notes retrieved successfully",result);
+        log.info("Notes retrieved successfully");
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
@@ -52,7 +57,8 @@ public class NoteController {
     public ResponseEntity<ApiResponse<NoteResponseDTO>> updateNotebyId(@RequestBody NoteRequestDTO noteRequestDTO,@AuthenticationPrincipal UserPrinciple userPrinciple,@PathVariable Long noteId){
         Long userId = userPrinciple.getUser().getUserId();
         NoteResponseDTO result = noteService.editNote(noteRequestDTO,noteId,userId);
-        ApiResponse<NoteResponseDTO> response = ApiResponse.success("note edit successfully",result);
+        ApiResponse<NoteResponseDTO> response = ApiResponse.success("Note edit successfully",result);
+        log.info("Note edit successfully");
         return  ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
@@ -65,6 +71,7 @@ public class NoteController {
         boolean found = noteService.isSoftDelete(noteId,userId);
         String message = found?"Note trashed successfully":"Note restored successfully";
         ApiResponse<Void> response = ApiResponse.success(message,null);
+        log.info(message);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
@@ -75,6 +82,7 @@ public class NoteController {
         Long userId = userPrinciple.getUser().getUserId();
         noteService.isDeleteNoteById(noteId,userId);
         ApiResponse<Void> response = ApiResponse.success("Note deleted successfully",null);
+        log.info("note deleted successfully");
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);

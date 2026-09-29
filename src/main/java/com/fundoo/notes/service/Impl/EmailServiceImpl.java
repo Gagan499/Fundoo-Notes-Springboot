@@ -1,11 +1,13 @@
 package com.fundoo.notes.service.Impl;
 
 import com.fundoo.notes.service.EmailService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 
+@Slf4j
 @Service
 public class EmailServiceImpl implements EmailService {
 
@@ -21,7 +23,7 @@ public class EmailServiceImpl implements EmailService {
         message.setTo(toEmail);
         message.setSubject("Reset your fundoo notes password");
         message.setText("click the following link to reset your password: \n"+resetLink);
-
         javaMailSender.send(message);
+        log.info("Email has been sent");
     }
 }

@@ -84,7 +84,24 @@
             <scope>compile</scope>
         </dependency>
 
+        <!-- spring actuator dependenc y-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
+        <!-- Spring slf4j logger dependency -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Mail Dependency -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
