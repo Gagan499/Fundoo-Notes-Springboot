@@ -37,12 +37,15 @@ public class Note {
     @Column(name = "content")
     private String content;
 
+    @Builder.Default
     @Column(name = "colour")
     private String colour = "white";
 
+    @Builder.Default
     @Column(name = "is_archived", nullable = false)
     private boolean isArchived = false;
 
+    @Builder.Default
     @Column(name = "is_trashed", nullable = false)
     private boolean isTrashed = false;
 

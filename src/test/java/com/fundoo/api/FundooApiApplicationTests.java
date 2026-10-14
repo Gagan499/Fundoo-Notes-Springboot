@@ -10,5 +10,4 @@ class FundooApiApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }
