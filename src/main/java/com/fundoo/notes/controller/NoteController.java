@@ -6,12 +6,14 @@ import com.fundoo.notes.dto.NoteRequestDTO;
 import com.fundoo.notes.dto.NoteResponseDTO;
 import com.fundoo.notes.service.Impl.NoteServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @Slf4j
 @RestController
@@ -34,9 +36,9 @@ public class NoteController {
     }
 
     @GetMapping("/get-notes")
-    public ResponseEntity<ApiResponse<List<NoteResponseDTO>>> getAllNotesByuserId(@AuthenticationPrincipal UserPrinciple principle){
+    public ResponseEntity<ApiResponse<Page<NoteResponseDTO>>> getAllNotesByuserId(@AuthenticationPrincipal UserPrinciple principle,Pageable pageable){
         Long userId = principle.getUser().getUserId();
-        List<NoteResponseDTO> notes = noteService.getAllNotesByuserId(userId);
+        Page<NoteResponseDTO> notes = noteService.getAllNotesByuserId(userId,pageable);
         String message = notes.isEmpty() ? "No notes found" : "Notes retrieved successfully";
         log.info(message);
         return ResponseEntity.ok(ApiResponse.success(message, notes));

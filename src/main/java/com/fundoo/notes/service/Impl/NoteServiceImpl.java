@@ -13,6 +13,9 @@ import com.fundoo.notes.repository.UserRepository;
 import com.fundoo.notes.service.NoteService;
 import io.micrometer.common.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -27,15 +30,16 @@ public class NoteServiceImpl implements NoteService {
     private final UserRepository userRepository;
     private Long userId;
 
-    public NoteServiceImpl(NoteRepository repository,UserRepository userRepository){
+    public NoteServiceImpl(NoteRepository repository, UserRepository userRepository) {
         this.noteRepository = repository;
         this.userRepository = userRepository;
     }
+
     @Override
-    public NoteResponseDTO createnote(NoteRequestDTO noteRequestDTO,Long userId) {
-        if(StringUtils.isBlank(noteRequestDTO.getContent()) && StringUtils.isBlank(noteRequestDTO.getTitle())){
+    public NoteResponseDTO createnote(NoteRequestDTO noteRequestDTO, Long userId) {
+        if (StringUtils.isBlank(noteRequestDTO.getContent()) && StringUtils.isBlank(noteRequestDTO.getTitle())) {
             log.info("Title and Content both are not empty or blank");
-            throw  new EmptyNoteException("Title and Content cannot both be blank | Empty");
+            throw new EmptyNoteException("Title and Content cannot both be blank | Empty");
         }
         if (StringUtils.isBlank(noteRequestDTO.getTitle())
                 && StringUtils.isNotBlank(noteRequestDTO.getContent())) {
@@ -47,25 +51,26 @@ public class NoteServiceImpl implements NoteService {
 
             noteRequestDTO.setTitle(title);
         }
-        User user = userRepository.findById(userId).orElseThrow(()-> new UsernameNotFoundException("User not Found"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("User not Found"));
         log.info("user found");
-        Note note = mapToNoteEntity(noteRequestDTO,user);
+        Note note = mapToNoteEntity(noteRequestDTO, user);
         Note savedNote = noteRepository.save(note);
         log.info("note saved to the repo");
         return mapNoteToResponse(savedNote);
     }
 
     @Override
-    public List<NoteResponseDTO> getAllNotesByuserId(Long userId) {
-        List<Note> list = noteRepository.findByUserUserId(userId);
-        log.info("All logs are founds");
-        return  list.stream().filter(note -> note.isTrashed() != true ).map(e->mapNoteToResponse(e)).collect(Collectors.toList());
+    public Page<NoteResponseDTO> getAllNotesByuserId(Long userId,Pageable pageable) {
+        Page<Note> list = noteRepository.findByUserUserId(userId, pageable);
+        log.info("All notes are found");
+        return list.map(this::mapNoteToResponse);
     }
 
     @Override
     public NoteResponseDTO getNoteById(Long noteId, Long userId) {
-        Note note = noteRepository.findByNoteIdAndUserUserId(noteId,userId).orElseThrow(()-> new NoteNotFoundByIdException("can't find note using this note id"));
-        if(note.isTrashed()){
+        Note note = noteRepository.findByNoteIdAndUserUserId(noteId, userId)
+                .orElseThrow(() -> new NoteNotFoundByIdException("can't find note using this note id"));
+        if (note.isTrashed()) {
             log.info("The particular note is in the Trashed");
             throw new AlreadyNoteIsTrashed("Note is not available\nReason :- note is not present of these noteID ");
         }
@@ -83,19 +88,19 @@ public class NoteServiceImpl implements NoteService {
             note.setTitle(dto.getTitle());
         }
         if (dto.getContent() != null) {
-            note.setContent(dto.getContent());     // fixed
+            note.setContent(dto.getContent()); // fixed
         }
         if (dto.getColor() != null) {
-            note.setColour(dto.getColor());        // fixed (your entity field is "colour")
+            note.setColour(dto.getColor()); // fixed (your entity field is "colour")
         }
         log.info("Note partial updates successfully");
         return mapNoteToResponse(noteRepository.save(note));
     }
 
     // soft delete the note
-    public boolean isSoftDelete(Long noteId, Long userId){
-        Note note = noteRepository.findByNoteIdAndUserUserId(noteId,userId)
-                    .orElseThrow(()-> new NoteNotFoundByIdException("Cannot found the note using this noteId and userId"));
+    public boolean isSoftDelete(Long noteId, Long userId) {
+        Note note = noteRepository.findByNoteIdAndUserUserId(noteId, userId)
+                .orElseThrow(() -> new NoteNotFoundByIdException("Cannot found the note using this noteId and userId"));
         note.setTrashed(!note.isTrashed());
         noteRepository.save(note);
         log.info("Note trashed successfully");
@@ -105,15 +110,15 @@ public class NoteServiceImpl implements NoteService {
     // delete note by note id
     @Override
     public void isDeleteNoteById(Long noteId, Long userId) {
-        Note note = noteRepository.findByNoteIdAndUserUserId(noteId,userId)
-                .orElseThrow(()-> new NoteNotFoundByIdException("Cannot found the note using this noteId and userId"));
+        Note note = noteRepository.findByNoteIdAndUserUserId(noteId, userId)
+                .orElseThrow(() -> new NoteNotFoundByIdException("Cannot found the note using this noteId and userId"));
         noteRepository.delete(note);
         log.info("Particular note deleted successfully");
 
     }
 
     // Map Note to Entity
-    private Note mapToNoteEntity(NoteRequestDTO requestDTO,User user) {
+    private Note mapToNoteEntity(NoteRequestDTO requestDTO, User user) {
 
         Note.NoteBuilder builder = Note.builder()
                 .title(requestDTO.getTitle())
@@ -131,17 +136,16 @@ public class NoteServiceImpl implements NoteService {
         return builder.build();
     }
 
-    //Map Note to Response dto
-    private NoteResponseDTO mapNoteToResponse(Note note){
+    // Map Note to Response dto
+    private NoteResponseDTO mapNoteToResponse(Note note) {
         return new NoteResponseDTO(
-            note.getNoteId(),
-            note.getTitle(),
-            note.getContent(),
-            note.getColour(),
-            note.isArchived(),
-            note.isTrashed(),
-            note.getCreatedAt(),
-            note.getUpdatedAt()
-        );
+                note.getNoteId(),
+                note.getTitle(),
+                note.getContent(),
+                note.getColour(),
+                note.isArchived(),
+                note.isTrashed(),
+                note.getCreatedAt(),
+                note.getUpdatedAt());
     }
 }
