@@ -15,7 +15,7 @@ target/
 
 ## Env File ##
 .env
-
+logs
 ### IntelliJ IDEA ###
 .idea
 *.iws
