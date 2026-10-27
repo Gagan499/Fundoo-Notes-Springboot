@@ -9,27 +9,35 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-@Configuration 
+@Configuration
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
-    SecurityConfig(JwtAuthFilter jwtAuthFilter){
-        this.jwtAuthFilter=jwtAuthFilter;
+
+    SecurityConfig(JwtAuthFilter jwtAuthFilter) {
+        this.jwtAuthFilter = jwtAuthFilter;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws SecurityException{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws SecurityException {
         http.csrf(crsf -> crsf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers("/api/users","/api/users/login","/api/users/register", "/api/users/forgot-password","/api/users/reset-password","/reset-password")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/users", "/api/users/login", "/api/users/register",
+                                "/api/users/forgot-password", "/api/users/reset-password", "/reset-password",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                            "/docs")
                         .permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-    @Bean 
-    public PasswordEncoder passwordEncoder(){
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

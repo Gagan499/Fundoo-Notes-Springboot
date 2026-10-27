@@ -1,20 +1,18 @@
 package com.fundoo.notes.controller;
 
 import com.fundoo.notes.dto.*;
-import com.fundoo.notes.service.EmailService;
-import com.fundoo.notes.service.Impl.UserServiceImpl;
 import com.fundoo.notes.service.UserService;
-import com.fundoo.notes.util.JwtUtils;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
+@Tag(name = "Users APIs")
 @RequestMapping("/api/users")
 public class UserController {
 

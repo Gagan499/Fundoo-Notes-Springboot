@@ -16,7 +16,7 @@ import jakarta.annotation.PostConstruct;
 @Component 
 public class Console_History {
     private final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    private final Path logFile = Paths.get("console-history.log");
+    private final Path logFile = Paths.get("logs", "console-history.log");
 
     @PostConstruct
     public void captureConsole() {
@@ -50,6 +50,7 @@ public class Console_History {
         if (chunk.isEmpty()) return;
 
         String entry = "=== " + LocalDateTime.now() + " ===\n" + chunk + "\n";
+        Files.createDirectories(logFile.getParent());
         Files.writeString(logFile, entry, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
     }
 }
